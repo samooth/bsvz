@@ -8,6 +8,8 @@ const engine = bsvz.script.engine;
 const iterations = 10_000;
 const fixture_allocator = std.heap.page_allocator;
 
+const sep_line: [90]u8 = @splat('=');
+
 fn bench(io: std.Io, comptime name: []const u8, comptime run_fn: fn (std.mem.Allocator) void) void {
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     defer arena.deinit();
@@ -41,7 +43,7 @@ const branching_locking = [_]u8{ 0x51, 0x63, 0x52, 0x67, 0x53, 0x68, 0x52, 0x9c 
 
 const sha256_locking = [_]u8{
     0x20,
-} ++ [_]u8{0xab} ** 32 ++ [_]u8{
+} ++ @as([32]u8, @splat(0xab)) ++ [_]u8{
     0xa8,
     0x82,
     0x01, 0x20,
@@ -50,7 +52,7 @@ const sha256_locking = [_]u8{
 
 const hash160_locking = [_]u8{
     0x14,
-} ++ [_]u8{0xcd} ** 20 ++ [_]u8{
+} ++ @as([20]u8, @splat(0xcd)) ++ [_]u8{
     0xa9,
     0x82,
     0x01, 0x14,
@@ -145,7 +147,7 @@ var go_reference_p2pkh_fixture_initialized = false;
 var go_reference_p2pkh_fixture: ReferencePrevoutFixture = undefined;
 
 fn initP2PKHFixture() void {
-    const key_bytes = [_]u8{0} ** 31 ++ [_]u8{1};
+    const key_bytes = @as([31]u8, @splat(0)) ++ [_]u8{1};
     const private_key = bsvz.crypto.PrivateKey.fromBytes(key_bytes) catch unreachable;
     const locking_script = Script.init(&p2pkh_locking);
     const previous_satoshis: i64 = 100_000;
@@ -154,7 +156,7 @@ fn initP2PKHFixture() void {
     var outputs = fixture_allocator.alloc(bsvz.transaction.Output, 1) catch unreachable;
 
     inputs[0] = .{
-        .previous_outpoint = .{ .txid = .{ .bytes = [_]u8{0xaa} ** 32 }, .index = 0 },
+        .previous_outpoint = .{ .txid = .{ .bytes = @as([32]u8, @splat(0xaa)) }, .index = 0 },
         .unlocking_script = Script.init(""),
         .sequence = 0xffff_ffff,
     };
@@ -343,7 +345,7 @@ pub fn main() !void {
     const io = threaded.io();
 
     std.debug.print("\nbsvz script engine benchmarks ({d} iterations each)\n", .{iterations});
-    std.debug.print("{s}\n", .{"=" ** 90});
+    std.debug.print("{s}\n", .{sep_line});
 
     bench(io, "arithmetic verify (2+3==5)", benchArithmetic);
     bench(io, "branching verify (if/else)", benchBranching);
@@ -357,5 +359,5 @@ pub fn main() !void {
     bench(io, "P2PKH verify (synthetic fixture)", benchP2PKHVerify);
     bench(io, "P2PKH verify (Go reference tx)", benchGoReferenceP2PKHVerify);
 
-    std.debug.print("{s}\n", .{"=" ** 90});
+    std.debug.print("{s}\n", .{sep_line});
 }

@@ -709,7 +709,7 @@ test "thread verifyScriptsDetailed ignores stale previous locking script context
     const p2pkh = @import("templates/p2pkh.zig");
     const Input = @import("../transaction/input.zig").Input;
 
-    var key_bytes = [_]u8{0} ** 32;
+    var key_bytes = @as([32]u8, @splat(0));
     key_bytes[31] = 1;
 
     const private_key = try @import("../crypto/lib.zig").PrivateKey.fromBytes(key_bytes);
@@ -726,7 +726,7 @@ test "thread verifyScriptsDetailed ignores stale previous locking script context
         .inputs = &[_]Input{
             .{
                 .previous_outpoint = .{
-                    .txid = .{ .bytes = [_]u8{0x44} ** 32 },
+                    .txid = .{ .bytes = @as([32]u8, @splat(0x44)) },
                     .index = 0,
                 },
                 .unlocking_script = Script.init(""),
@@ -907,7 +907,7 @@ test "thread verifyPrevoutSpendDetailed uses previous output directly" {
         .inputs = &[_]@import("../transaction/input.zig").Input{
             .{
                 .previous_outpoint = .{
-                    .txid = .{ .bytes = [_]u8{0} ** 32 },
+                    .txid = .{ .bytes = @as([32]u8, @splat(0)) },
                     .index = 0,
                 },
                 .unlocking_script = Script.init(&[_]u8{}),
@@ -945,7 +945,7 @@ test "thread verifyPrevoutSpendOutcome exposes compact results directly" {
         .inputs = &[_]@import("../transaction/input.zig").Input{
             .{
                 .previous_outpoint = .{
-                    .txid = .{ .bytes = [_]u8{0} ** 32 },
+                    .txid = .{ .bytes = @as([32]u8, @splat(0)) },
                     .index = 0,
                 },
                 .unlocking_script = Script.init(&[_]u8{}),

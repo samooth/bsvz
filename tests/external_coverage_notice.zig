@@ -24,7 +24,7 @@ const external_inputs = [_]ExternalInput{
     },
 };
 
-fn envRequiresExternalCoverage(allocator: std.mem.Allocator) bool {
+pub fn envRequiresExternalCoverage(allocator: std.mem.Allocator) bool {
     // Zig 0.16 removed std.process.getEnvVarOwned; without libc the process
     // environment is only reachable via /proc/self/environ on Linux.
     if (@import("builtin").os.tag != .linux) return false;
@@ -66,11 +66,17 @@ test "external corpus availability is visible in default test runs" {
                         .{ input.name, input.path, step, input.purpose },
                     );
                 } else {
+                    if (require_external) {
+                        std.debug.print(
+                            "error: missing required external input '{s}' at {s}; default coverage is incomplete without it ({s})\n",
+                            .{ input.name, input.path, input.purpose },
+                        );
+                        return error.MissingExternalCoverageInputs;
+                    }
                     std.debug.print(
-                        "error: missing required external input '{s}' at {s}; default coverage is incomplete without it ({s})\n",
+                        "warning: missing external input '{s}' at {s}; related tests will skip ({s})\n",
                         .{ input.name, input.path, input.purpose },
                     );
-                    return error.MissingExternalCoverageInputs;
                 }
                 continue;
             },

@@ -96,7 +96,7 @@ test "varint encode and parse roundtrip across widths" {
     const values = [_]u64{ 0, 0xfc, 0xfd, 0xffff, 0x1_0000, 0xffff_ffff, 0x1_0000_0000 };
 
     for (values) |value| {
-        var buf: [9]u8 = [_]u8{0} ** 9;
+        var buf: [9]u8 = @as([9]u8, @splat(0));
         const len = try VarInt.encodeInto(&buf, value);
         const parsed = try VarInt.parse(buf[0..len]);
 

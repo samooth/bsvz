@@ -496,10 +496,10 @@ test "parser rejects malformed pushdata length prefixes" {
 test "parser roundtrips pushdata boundary encodings" {
     const allocator = std.testing.allocator;
 
-    const direct_75 = &[_]u8{0x11} ** 75;
-    const pushdata1_76 = &[_]u8{0x22} ** 76;
-    const pushdata1_255 = &[_]u8{0x33} ** 255;
-    const pushdata2_256 = &[_]u8{0x44} ** 256;
+    const direct_75 = &@as([75]u8, @splat(0x11));
+    const pushdata1_76 = &@as([76]u8, @splat(0x22));
+    const pushdata1_255 = &@as([255]u8, @splat(0x33));
+    const pushdata2_256 = &@as([256]u8, @splat(0x44));
 
     const script = Script.init(
         &[_]u8{75} ++ direct_75 ++

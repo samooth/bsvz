@@ -292,7 +292,7 @@ pub const ScriptNum = union(enum) {
 
     fn encodeMagnitudeUnsigned(allocator: std.mem.Allocator, magnitude_value: u128) ![]u8 {
         var magnitude = magnitude_value;
-        var tmp: [16]u8 = [_]u8{0} ** 16;
+        var tmp: [16]u8 = @as([16]u8, @splat(0));
         var len: usize = 0;
         while (magnitude != 0) {
             tmp[len] = @truncate(magnitude & 0xff);

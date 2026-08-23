@@ -42,7 +42,7 @@ pub const RecoveredPubkey = struct {
 
 /// Double-SHA256 digest -> scalar e, matching OpenSSL / go-sdk `hashToInt` for 32-byte digests.
 fn hashToIntScalar(digest: [32]u8) [32]u8 {
-    var wide: [48]u8 = [_]u8{0} ** 48;
+    var wide: [48]u8 = @as([48]u8, @splat(0));
     @memcpy(wide[wide.len - 32 ..], &digest);
     return SecpScalar.reduce48(wide, .big);
 }

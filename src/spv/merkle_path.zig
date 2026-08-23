@@ -361,8 +361,8 @@ const go_brc74_txid1 = "304e737fdfcb017a1a322e78b067ecebb5e07b44f0a36ed1f01264d2
 
 test "merkle path clone and combine keep owned copies" {
     const allocator = std.testing.allocator;
-    const txid_a = crypto.Hash256{ .bytes = [_]u8{0x11} ** 32 };
-    const txid_b = crypto.Hash256{ .bytes = [_]u8{0x22} ** 32 };
+    const txid_a = crypto.Hash256{ .bytes = @as([32]u8, @splat(0x11)) };
+    const txid_b = crypto.Hash256{ .bytes = @as([32]u8, @splat(0x22)) };
 
     var path_a = MerklePath{
         .block_height = 10,
@@ -384,8 +384,8 @@ test "merkle path clone and combine keep owned copies" {
 
 test "merkle path computes missing hashes" {
     const allocator = std.testing.allocator;
-    const left = crypto.Hash256{ .bytes = [_]u8{0x33} ** 32 };
-    const right = crypto.Hash256{ .bytes = [_]u8{0x44} ** 32 };
+    const left = crypto.Hash256{ .bytes = @as([32]u8, @splat(0x33)) };
+    const right = crypto.Hash256{ .bytes = @as([32]u8, @splat(0x44)) };
 
     var path = MerklePath{
         .block_height = 20,

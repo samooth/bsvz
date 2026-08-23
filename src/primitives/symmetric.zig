@@ -10,7 +10,7 @@ pub const SymmetricKey = struct {
     key: [32]u8,
 
     pub fn newFromBytes(bytes: []const u8) SymmetricKey {
-        var out = [_]u8{0} ** 32;
+        var out = @as([32]u8, @splat(0));
         if (bytes.len >= 32) {
             @memcpy(&out, bytes[bytes.len - 32 ..]);
         } else {
@@ -20,7 +20,7 @@ pub const SymmetricKey = struct {
     }
 
     pub fn newFromRandom() SymmetricKey {
-        var out = [_]u8{0} ** 32;
+        var out = @as([32]u8, @splat(0));
         util.randomBytes(&out);
         return .{ .key = out };
     }

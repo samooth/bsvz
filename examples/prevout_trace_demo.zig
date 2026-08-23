@@ -9,7 +9,7 @@ pub fn main() !void {
         .inputs = &[_]bsvz.transaction.Input{
             .{
                 .previous_outpoint = .{
-                    .txid = .{ .bytes = [_]u8{0} ** 32 },
+                    .txid = .{ .bytes = @as([32]u8, @splat(0)) },
                     .index = 0,
                 },
                 .unlocking_script = bsvz.script.Script.init(&[_]u8{}),

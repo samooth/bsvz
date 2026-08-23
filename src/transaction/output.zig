@@ -113,7 +113,7 @@ test "output serialize matches legacy encoding" {
         .locking_script = .{ .bytes = &[_]u8{ 0x51, 0x51 } },
     };
 
-    var buf = [_]u8{0} ** 11;
+    var buf = @as([11]u8, @splat(0));
     const written = output.writeInto(&buf);
 
     try std.testing.expectEqual(@as(usize, 11), written);

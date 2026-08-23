@@ -269,7 +269,7 @@ test "arc extended payload when all inputs have source" {
         .version = 1,
         .inputs = &.{.{
             .previous_outpoint = .{
-                .txid = .{ .bytes = [_]u8{1} ** 32 },
+                .txid = .{ .bytes = @as([32]u8, @splat(1)) },
                 .index = 0,
             },
             .unlocking_script = .{ .bytes = &[_]u8{} },

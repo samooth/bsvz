@@ -372,7 +372,7 @@ pub fn privateKeyFromBackupShares(
 }
 
 fn integrityTag(key: PrivateKey) [8]u8 {
-    const pub_key = key.publicKey() catch return [_]u8{0} ** 8;
+    const pub_key = key.publicKey() catch return @as([8]u8, @splat(0));
     const compressed = pub_key.toCompressedSec1();
     const digest = crypto_hash.hash160(&compressed).bytes;
     var out: [8]u8 = undefined;
@@ -383,7 +383,7 @@ fn integrityTag(key: PrivateKey) [8]u8 {
 }
 
 fn bytesToU256(bytes: []const u8) u256 {
-    var buf: [32]u8 = [_]u8{0} ** 32;
+    var buf: [32]u8 = @as([32]u8, @splat(0));
     if (bytes.len > 32) {
         @memcpy(buf[0..32], bytes[bytes.len - 32 ..]);
     } else {
@@ -446,7 +446,7 @@ test "deriveSharedSecret is symmetric" {
 test "secp256k1 params match base point" {
     const params = Secp256k1.params();
     try std.testing.expect(Secp256k1.isOnCurve(params.gx, params.gy));
-    var scalar_one = [_]u8{0} ** 32;
+    var scalar_one = @as([32]u8, @splat(0));
     scalar_one[31] = 1;
     const base = try Secp256k1.scalarBaseMult(scalar_one);
     try std.testing.expectEqualSlices(u8, &params.gx, &base.x);

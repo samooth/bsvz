@@ -33,8 +33,17 @@ const SkipReason = enum {
     unsupported_flags_or_expectation_gap,
 };
 
+const coverage_flags = @import("external_coverage_notice.zig");
+
 fn accessOrRequire(rel_path: []const u8) !void {
-    try std.Io.Dir.cwd().access(testIo(), rel_path, .{});
+    std.Io.Dir.cwd().access(testIo(), rel_path, .{}) catch |err| switch (err) {
+        error.FileNotFound => {
+            if (coverage_flags.envRequiresExternalCoverage(std.heap.page_allocator)) return err;
+            std.debug.print("skipping: external corpus not present: {s}\n", .{rel_path});
+            return error.SkipZigTest;
+        },
+        else => return err,
+    };
 }
 
 fn containsToken(script_asm: []const u8, needle: []const u8) bool {

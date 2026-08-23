@@ -43,7 +43,7 @@ Crypto, keys, script, transactions, SPV, BEEF, and broadcast. 27 BRC standards c
 
 ## Getting Started
 
-**Requirements:** Zig `0.16.0`
+**Requirements:** Zig `0.16.0` or newer — CI continuously verifies both the latest stable release and current master (`0.17` dev).
 
 Fetch the dependency:
 

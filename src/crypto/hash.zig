@@ -52,7 +52,7 @@ pub const Hash160 = struct {
     bytes: [20]u8,
 
     pub fn zero() Hash160 {
-        return .{ .bytes = [_]u8{0} ** 20 };
+        return .{ .bytes = @as([20]u8, @splat(0)) };
     }
 
     pub fn eql(self: Hash160, other: Hash160) bool {
@@ -64,7 +64,7 @@ pub const Hash256 = struct {
     bytes: [32]u8,
 
     pub fn zero() Hash256 {
-        return .{ .bytes = [_]u8{0} ** 32 };
+        return .{ .bytes = @as([32]u8, @splat(0)) };
     }
 
     pub fn eql(self: Hash256, other: Hash256) bool {
@@ -125,7 +125,7 @@ fn ripemd160Hash(out: *[20]u8, data: []const u8) void {
         ripemd160ProcessBlock(block, &h0, &h1, &h2, &h3, &h4);
     }
 
-    var tail: [128]u8 = [_]u8{0} ** 128;
+    var tail: [128]u8 = @as([128]u8, @splat(0));
     const remainder = data.len % 64;
     @memcpy(tail[0..remainder], data[full_blocks * 64 ..]);
     tail[remainder] = 0x80;

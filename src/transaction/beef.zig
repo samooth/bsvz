@@ -941,7 +941,7 @@ test "atomic BEEF clones root transaction safely" {
 
     @constCast(tx.inputs)[0] = .{
         .previous_outpoint = .{
-            .txid = .{ .bytes = [_]u8{0x11} ** 32 },
+            .txid = .{ .bytes = @as([32]u8, @splat(0x11)) },
             .index = 0,
         },
         .unlocking_script = .{ .bytes = &[_]u8{0x51} },
@@ -1300,14 +1300,14 @@ test "BEEF verify checks chain tracker roots" {
         .expected_height = 7,
     }, false));
     try std.testing.expect(!(try beef.verify(allocator, Tracker{
-        .expected_root = .{ .bytes = [_]u8{0xaa} ** 32 },
+        .expected_root = .{ .bytes = @as([32]u8, @splat(0xaa)) },
         .expected_height = 7,
     }, false)));
 }
 
 test "BEEF txid-only entries require proof unless explicitly allowed" {
     const allocator = std.testing.allocator;
-    const txid = primitives.chainhash.Hash{ .bytes = [_]u8{0x77} ** 32 };
+    const txid = primitives.chainhash.Hash{ .bytes = @as([32]u8, @splat(0x77)) };
 
     var beef = newBeefV2(allocator);
     defer beef.deinit();
