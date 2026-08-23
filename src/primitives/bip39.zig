@@ -2,6 +2,7 @@
 //! Behavior matches github.com/bsv-blockchain/go-sdk compat/bip39 (big.Int checksum path).
 
 const std = @import("std");
+const util = @import("../util.zig");
 const hex = @import("hex.zig");
 const StaticStringMap = std.static_string_map.StaticStringMap;
 const HmacSha512 = std.crypto.auth.hmac.sha2.HmacSha512;
@@ -52,7 +53,7 @@ pub fn newEntropy(allocator: std.mem.Allocator, bit_size: usize) Error![]u8 {
     try validateEntropyBits(bit_size);
     const n = bit_size / 8;
     const buf = try allocator.alloc(u8, n);
-    std.crypto.random.bytes(buf);
+    util.randomBytes(buf);
     return buf;
 }
 

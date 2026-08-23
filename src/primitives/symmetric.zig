@@ -1,4 +1,5 @@
 const std = @import("std");
+const util = @import("../util.zig");
 const aesgcm = @import("aesgcm.zig");
 
 pub const Error = error{
@@ -20,7 +21,7 @@ pub const SymmetricKey = struct {
 
     pub fn newFromRandom() SymmetricKey {
         var out = [_]u8{0} ** 32;
-        std.crypto.random.bytes(&out);
+        util.randomBytes(&out);
         return .{ .key = out };
     }
 
@@ -43,7 +44,7 @@ pub const SymmetricKey = struct {
         plaintext: []const u8,
     ) ![]u8 {
         var iv: [32]u8 = undefined;
-        std.crypto.random.bytes(&iv);
+        util.randomBytes(&iv);
         const enc = try aesgcm.aesGcmEncrypt(allocator, plaintext, &self.key, &iv, "");
         defer allocator.free(enc.ciphertext);
 

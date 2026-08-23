@@ -1,4 +1,5 @@
 const std = @import("std");
+const util = @import("../util.zig");
 const secp256k1 = @import("../crypto/secp256k1.zig");
 const sig = @import("../crypto/signature.zig");
 const compact = @import("../crypto/compact.zig");
@@ -57,7 +58,7 @@ pub const PrivateKey = struct {
     pub fn generate() !PrivateKey {
         var bytes: [32]u8 = undefined;
         while (true) {
-            std.crypto.random.bytes(&bytes);
+            util.randomBytes(&bytes);
             if (secp256k1.PrivateKey.fromBytes(bytes)) |key| {
                 return .{ .inner = key };
             } else |_| {
@@ -163,7 +164,7 @@ pub const PrivateKey = struct {
         errdefer allocator.free(points);
 
         var seed: [64]u8 = undefined;
-        std.crypto.random.bytes(&seed);
+        util.randomBytes(&seed);
 
         var used = std.AutoHashMap(u256, void).init(allocator);
         defer used.deinit();
@@ -176,7 +177,7 @@ pub const PrivateKey = struct {
                 var counter: [40]u8 = undefined;
                 std.mem.writeInt(u32, counter[0..4], @intCast(i), .big);
                 std.mem.writeInt(u32, counter[4..8], attempt, .big);
-                std.crypto.random.bytes(counter[8..40]);
+                util.randomBytes(counter[8..40]);
                 const h = crypto_hash.hmacSha512(counter[0..], &seed);
                 x = bytesToU256(h[0..32]) % keyshares.Curve.p;
                 if (x == 0) continue;
@@ -394,7 +395,7 @@ fn bytesToU256(bytes: []const u8) u256 {
 fn randomFieldNonZero() u256 {
     var out: [32]u8 = undefined;
     while (true) {
-        std.crypto.random.bytes(&out);
+        util.randomBytes(&out);
         const v = std.mem.readInt(u256, &out, .big) % keyshares.Curve.p;
         if (v != 0) return v;
     }

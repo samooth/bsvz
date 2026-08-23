@@ -1,5 +1,6 @@
 //! Electrum (BIE1) and Bitcore-style ECIES on secp256k1. Matches go-sdk `compat/ecies`.
 const std = @import("std");
+const util = @import("../util.zig");
 const aescbc = @import("../primitives/aescbc.zig");
 const hash = @import("hash.zig");
 const secp = @import("secp256k1.zig");
@@ -23,7 +24,7 @@ fn hmacEqual32(a: []const u8, b: *const [32]u8) bool {
 fn randomPrivateKey() Error!secp.PrivateKey {
     var buf: [32]u8 = undefined;
     for (0..256) |_| {
-        std.crypto.random.bytes(&buf);
+        util.randomBytes(&buf);
         if (secp.PrivateKey.fromBytes(buf)) |k| return k else |_| {}
     }
     return error.KeyGenFailed;

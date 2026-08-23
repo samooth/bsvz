@@ -7,7 +7,7 @@ pub const PostResult = struct {
 
 fn readResponseBody(allocator: std.mem.Allocator, resp: *std.http.Client.Response, buf: []u8) ![]u8 {
     var body_reader = resp.reader(buf);
-    return body_reader.allocRemaining(allocator, std.io.Limit.limited(4 * 1024 * 1024));
+    return body_reader.allocRemaining(allocator, std.Io.Limit.limited(4 * 1024 * 1024));
 }
 
 /// POST with body; returns allocated response body.

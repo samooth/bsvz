@@ -1,5 +1,6 @@
 //! BRC-77 portable signed messages (go-sdk `message/signed.go` wire: `BB3\\x01`, invoice `2-message signing-…`).
 const std = @import("std");
+const util = @import("../util.zig");
 const ec = @import("../primitives/ec.zig");
 const DerSignature = @import("../crypto/signature.zig").DerSignature;
 
@@ -73,7 +74,7 @@ pub fn signAlloc(
     recipient: ?ec.PublicKey,
 ) ![]u8 {
     var key_id: [32]u8 = undefined;
-    std.crypto.random.bytes(&key_id);
+    util.randomBytes(&key_id);
     return signAllocWithKeyId(allocator, message, signer, recipient, key_id);
 }
 

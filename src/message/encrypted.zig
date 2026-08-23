@@ -1,5 +1,6 @@
 //! BRC-78 portable encrypted messages (go-sdk `message/encrypted.go`).
 const std = @import("std");
+const util = @import("../util.zig");
 const ec = @import("../primitives/ec.zig");
 const symmetric = @import("../primitives/symmetric.zig");
 
@@ -59,7 +60,7 @@ pub fn encryptAlloc(
     recipient: ec.PublicKey,
 ) ![]u8 {
     var key_id: [32]u8 = undefined;
-    std.crypto.random.bytes(&key_id);
+    util.randomBytes(&key_id);
     return encryptAllocWithKeyId(allocator, message, sender, recipient, key_id);
 }
 
