@@ -336,10 +336,10 @@ test "execution trace captures independent snapshots" {
     try std.testing.expectEqual(opcode.Opcode.OP_DUP, trace.steps.items[0].opcodeValue());
     try std.testing.expectEqualStrings("OP_DUP", trace.steps.items[0].opcodeName());
 
-    var rendered: std.ArrayListUnmanaged(u8) = .empty;
-    defer rendered.deinit(allocator);
-    try trace.writeDebug(rendered.writer(allocator));
-    try std.testing.expect(std.mem.indexOf(u8, rendered.items, "ExecutionTrace(steps=1)") != null);
-    try std.testing.expect(std.mem.indexOf(u8, rendered.items, "OP_DUP") != null);
-    try std.testing.expect(std.mem.indexOf(u8, rendered.items, "0x76") != null);
+    var rendered: std.Io.Writer.Allocating = .init(allocator);
+    defer rendered.deinit();
+    try trace.writeDebug(&rendered.writer);
+    try std.testing.expect(std.mem.indexOf(u8, rendered.written(), "ExecutionTrace(steps=1)") != null);
+    try std.testing.expect(std.mem.indexOf(u8, rendered.written(), "OP_DUP") != null);
+    try std.testing.expect(std.mem.indexOf(u8, rendered.written(), "0x76") != null);
 }

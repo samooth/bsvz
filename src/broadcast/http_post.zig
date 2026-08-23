@@ -13,11 +13,12 @@ fn readResponseBody(allocator: std.mem.Allocator, resp: *std.http.Client.Respons
 /// POST with body; returns allocated response body.
 pub fn postBodyAlloc(
     allocator: std.mem.Allocator,
+    io: std.Io,
     url: []const u8,
     extra_headers: []const std.http.Header,
     payload: []const u8,
 ) !PostResult {
-    var client: std.http.Client = .{ .allocator = allocator };
+    var client: std.http.Client = .{ .allocator = allocator, .io = io };
     defer client.deinit();
 
     const uri = try std.Uri.parse(url);
@@ -43,10 +44,11 @@ pub fn postBodyAlloc(
 /// GET; returns allocated response body.
 pub fn getBodyAlloc(
     allocator: std.mem.Allocator,
+    io: std.Io,
     url: []const u8,
     extra_headers: []const std.http.Header,
 ) !PostResult {
-    var client: std.http.Client = .{ .allocator = allocator };
+    var client: std.http.Client = .{ .allocator = allocator, .io = io };
     defer client.deinit();
 
     const uri = try std.Uri.parse(url);

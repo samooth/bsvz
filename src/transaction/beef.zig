@@ -752,7 +752,7 @@ fn readTransactionsV2(beef: *Beef, bytes: []const u8, cursor: *usize) !void {
     for (0..count) |_| {
         if (bytes.len < cursor.* + 1) return error.EndOfStream;
         const raw_format = bytes[cursor.*];
-        const format: DataFormat = std.meta.intToEnum(DataFormat, raw_format) catch return error.InvalidEncoding;
+        const format: DataFormat = std.enums.fromInt(DataFormat, raw_format) orelse return error.InvalidEncoding;
         cursor.* += 1;
 
         switch (format) {

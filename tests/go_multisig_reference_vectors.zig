@@ -1,4 +1,13 @@
 const std = @import("std");
+
+var test_threaded: ?std.Io.Threaded = null;
+
+fn testIo() std.Io {
+    if (test_threaded == null) {
+        test_threaded = std.Io.Threaded.init(std.testing.allocator, .{ .environ = .empty });
+    }
+    return test_threaded.?.io();
+}
 const bsvz = @import("bsvz");
 const harness = @import("support/go_reference_harness.zig");
 
@@ -25,7 +34,7 @@ const SkipReason = enum {
 };
 
 fn accessOrRequire(rel_path: []const u8) !void {
-    try std.fs.cwd().access(rel_path, .{});
+    try std.Io.Dir.cwd().access(testIo(), rel_path, .{});
 }
 
 fn containsToken(script_asm: []const u8, needle: []const u8) bool {
@@ -169,7 +178,7 @@ test "filtered go multisig reference rows execute through bsvz" {
     const allocator = std.testing.allocator;
     try accessOrRequire(corpus_path);
 
-    const file = try std.fs.cwd().readFileAlloc(allocator, corpus_path, 8 * 1024 * 1024);
+    const file = try std.Io.Dir.cwd().readFileAlloc(testIo(), corpus_path, allocator, .limited(8 * 1024 * 1024));
     defer allocator.free(file);
 
     const parsed = try std.json.parseFromSlice(std.json.Value, allocator, file, .{});
@@ -229,7 +238,7 @@ test "exact go multisig dynamic reference rows execute through bsvz" {
     const allocator = std.testing.allocator;
     try accessOrRequire(corpus_path);
 
-    const file = try std.fs.cwd().readFileAlloc(allocator, corpus_path, 8 * 1024 * 1024);
+    const file = try std.Io.Dir.cwd().readFileAlloc(testIo(), corpus_path, allocator, .limited(8 * 1024 * 1024));
     defer allocator.free(file);
 
     const parsed = try std.json.parseFromSlice(std.json.Value, allocator, file, .{});

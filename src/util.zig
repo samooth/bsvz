@@ -42,3 +42,18 @@ pub fn nowSecs() u64 {
 test "nowSecs is plausible" {
     try std.testing.expect(nowSecs() > 1_700_000_000);
 }
+
+/// Replacement for `std.testing.refAllDeclsRecursive`, removed in Zig 0.16.
+pub fn refAllDeclsRecursive(comptime T: type) void {
+    if (!builtin.is_test) return;
+    inline for (comptime std.meta.declarations(T)) |decl| {
+        const D = @field(T, decl.name);
+        if (comptime @TypeOf(D) == type) {
+            switch (@typeInfo(D)) {
+                .@"struct", .@"enum", .@"union", .@"opaque" => refAllDeclsRecursive(D),
+                else => {},
+            }
+        }
+        _ = &D;
+    }
+}

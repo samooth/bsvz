@@ -1164,12 +1164,9 @@ fn verifyChecksigWithScriptCode(
     }
     try checkHashTypeEncoding(ctx, hash_type);
 
-    const tx_signature = crypto.TxSignature.fromChecksigFormat(sig_bytes) catch |err| switch (err) {
-        error.InvalidEncoding => {
-            if (check_signature_encoding) return error.InvalidSignatureEncoding;
-            return false;
-        },
-        else => return err,
+    const tx_signature = crypto.TxSignature.fromChecksigFormat(sig_bytes) catch {
+        if (check_signature_encoding) return error.InvalidSignatureEncoding;
+        return false;
     };
     _ = (if (check_pubkey_encoding)
         crypto.PublicKey.fromSec1(pubkey_bytes)
