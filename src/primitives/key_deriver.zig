@@ -30,7 +30,7 @@ pub const Protocol = struct {
 
 /// The "anyone" private key: a 32-byte key with value 1 (matches Go `AnyoneKey()`).
 fn anyonePrivateKey() ec.PrivateKey {
-    var bytes: [32]u8 = .{0} ** 32;
+    var bytes = @as([32]u8, @splat(0));
     bytes[31] = 1;
     return ec.PrivateKey.fromBytes(bytes) catch unreachable;
 }
