@@ -216,7 +216,8 @@ pub const ScriptThread = struct {
         trace: ?*ExecutionTrace,
     ) VerificationResult {
         const use_legacy_p2sh = enable_legacy_p2sh and engine.isPayToScriptHash(locking_script);
-        if (self.checkPushOnly(unlocking_script, self.ctx.flags.sig_push_only or use_legacy_p2sh)) |result| return result;
+        const require_push_only = (self.ctx.flags.sig_push_only and engine.enforceNonMalleability(self.ctx)) or use_legacy_p2sh;
+        if (self.checkPushOnly(unlocking_script, require_push_only)) |result| return result;
 
         if (self.executePhaseDetailedImpl(.unlocking, unlocking_script, trace)) |result| return result;
 
@@ -674,7 +675,7 @@ pub fn verifyPrevoutSpendWithLegacyP2SHTraced(
 fn finalResult(ctx: ExecutionContext, state: *ExecutionState) Error!bool {
     if (state.condition_stack.items.len != 0) return error.UnbalancedConditionals;
     if (state.stack.items.len == 0) return false;
-    if (ctx.flags.clean_stack and state.stack.items.len != 1) return error.CleanStack;
+    if (ctx.flags.clean_stack and engine.enforceNonMalleability(ctx) and state.stack.items.len != 1) return error.CleanStack;
     return engine.isTruthy(state.stack.items[state.stack.items.len - 1]);
 }
 

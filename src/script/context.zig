@@ -10,8 +10,18 @@ pub const ExecutionFlags = struct {
     max_stack_items: usize = 1_000,
     max_script_size: usize = std.math.maxInt(i32),
     max_script_element_size: usize = std.math.maxInt(i32),
-    max_script_number_length: usize = 750_000,
+    /// Chronicle consensus limit (spec section 2): script numbers up to 32MB.
+    max_script_number_length: usize = 32 * 1_000_000,
     utxo_after_genesis: bool = true,
+    /// Chronicle-era rules are active for the block containing the spending
+    /// transaction (node flag SCRIPT_CHRONICLE): gates malleability relaxation
+    /// and the SIGHASH_CHRONICLE sighash bit.
+    chronicle: bool = true,
+    /// The spent UTXO was created after Chronicle activation (node flag
+    /// SCRIPT_UTXO_AFTER_CHRONICLE, per-input): gates the new opcodes
+    /// (OP_VER, OP_VERIF/OP_VERNOTIF, OP_SUBSTR/LEFT/RIGHT, OP_LSHIFTNUM/
+    /// OP_RSHIFTNUM, OP_2MUL/OP_2DIV).
+    utxo_after_chronicle: bool = true,
     enable_reenabled_opcodes: bool = true,
     enable_sighash_forkid: bool = true,
     verify_bip143_sighash: bool = true,
@@ -29,8 +39,20 @@ pub const ExecutionFlags = struct {
     verify_check_locktime: bool = false,
     verify_check_sequence: bool = false,
 
-    pub fn postGenesisBsv() ExecutionFlags {
+    /// Default rules: post-Chronicle (malleability relaxation applies to
+    /// transactions with version > 1; new opcodes active for post-Chronicle UTXOs).
+    pub fn postChronicleBsv() ExecutionFlags {
         return .{};
+    }
+
+    /// Post-Genesis, pre-Chronicle rules (as used between 2020 and the
+    /// Chronicle activation heights).
+    pub fn postGenesisBsv() ExecutionFlags {
+        return .{
+            .max_script_number_length = 750_000,
+            .chronicle = false,
+            .utxo_after_chronicle = false,
+        };
     }
 
     pub fn legacyReference() ExecutionFlags {
@@ -41,6 +63,8 @@ pub const ExecutionFlags = struct {
             .max_script_element_size = 520,
             .max_script_number_length = 4,
             .utxo_after_genesis = false,
+            .chronicle = false,
+            .utxo_after_chronicle = false,
             .enable_reenabled_opcodes = true,
             .enable_sighash_forkid = false,
             .verify_bip143_sighash = false,
@@ -282,12 +306,24 @@ test "execution flag presets expose legacy and BSV policy envelopes" {
     const bsv = ExecutionFlags.postGenesisBsv();
     try std.testing.expectEqual(std.math.maxInt(i32), bsv.max_script_size);
     try std.testing.expect(bsv.utxo_after_genesis);
+    try std.testing.expect(!bsv.chronicle);
+    try std.testing.expect(!bsv.utxo_after_chronicle);
+    try std.testing.expectEqual(@as(usize, 750_000), bsv.max_script_number_length);
     try std.testing.expect(bsv.enable_sighash_forkid);
     try std.testing.expect(bsv.verify_bip143_sighash);
     try std.testing.expect(bsv.strict_encoding);
     try std.testing.expect(!bsv.discourage_upgradable_nops);
     try std.testing.expect(!bsv.verify_check_locktime);
     try std.testing.expect(!bsv.verify_check_sequence);
+
+    const chronicle = ExecutionFlags.postChronicleBsv();
+    try std.testing.expect(chronicle.utxo_after_genesis);
+    try std.testing.expect(chronicle.chronicle);
+    try std.testing.expect(chronicle.utxo_after_chronicle);
+    try std.testing.expectEqual(@as(usize, 32 * 1_000_000), chronicle.max_script_number_length);
+
+    try std.testing.expect(!legacy.chronicle);
+    try std.testing.expect(!legacy.utxo_after_chronicle);
 }
 
 test "execution context can be built directly from a previous output" {

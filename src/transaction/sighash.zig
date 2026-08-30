@@ -16,6 +16,9 @@ pub const SigHashType = struct {
     pub const none: u32 = 0x02;
     pub const single: u32 = 0x03;
     pub const forkid: u32 = 0x40;
+    /// Chronicle (OTDA) bit: when set alongside `forkid`, the original
+    /// transaction digest algorithm (pre-BIP143) is used instead of BIP143.
+    pub const chronicle: u32 = 0x20;
     pub const anyone_can_pay: u32 = 0x80;
     pub const output_mask: u32 = 0x1f;
 
@@ -25,6 +28,10 @@ pub const SigHashType = struct {
 
     pub fn hasForkId(scope: u32) bool {
         return (scope & forkid) != 0;
+    }
+
+    pub fn hasChronicle(scope: u32) bool {
+        return (scope & chronicle) != 0;
     }
 
     pub fn hasAnyoneCanPay(scope: u32) bool {
@@ -42,7 +49,9 @@ pub fn formatPreimage(
 ) ![]u8 {
     if (input_index >= tx.inputs.len) return error.InputIndexOutOfRange;
 
-    if (SigHashType.hasForkId(scope)) {
+    // BIP143 only when FORKID is set WITHOUT the Chronicle bit (node
+    // SignatureHash dispatcher: `hasForkId() && !hasChronicle()`).
+    if (SigHashType.hasForkId(scope) and !SigHashType.hasChronicle(scope)) {
         return formatForkIdPreimage(allocator, tx, input_index, subscript, satoshis, scope);
     }
 
@@ -176,7 +185,10 @@ pub fn digest(
 
     if (input_index >= tx.inputs.len) return error.InputIndexOutOfRange;
 
-    if (SigHashType.hasForkId(scope)) {
+    // BIP143 only when FORKID is set WITHOUT the Chronicle bit (node
+    // SignatureHash dispatcher). FORKID|CHRONICLE (0x60) selects the
+    // original digest.
+    if (SigHashType.hasForkId(scope) and !SigHashType.hasChronicle(scope)) {
         return digestForkId(tx, input_index, subscript, satoshis, scope);
     }
 
