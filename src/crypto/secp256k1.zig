@@ -276,7 +276,6 @@ pub const PublicKey = struct {
     pub fn verifyDigest256Relaxed(self: PublicKey, digest: [32]u8, der_bytes: []const u8) !bool {
         return verifyDigest256RelaxedSec1(&self.bytes, digest, der_bytes);
     }
-
 };
 
 pub fn verifyDigest256Sec1(sec1: []const u8, digest: [32]u8, sig: signature.DerSignature) !bool {

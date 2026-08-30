@@ -24,7 +24,7 @@ pub const MerklePath = struct {
         data: []const u8,
         cursor: *usize,
     ) !MerklePath {
-        const index = try primitives.varint.VarInt.parse(data[cursor.* ..]);
+        const index = try primitives.varint.VarInt.parse(data[cursor.*..]);
         cursor.* += index.len;
         const block_height = std.math.cast(u32, index.value) orelse return error.Overflow;
 
@@ -37,7 +37,7 @@ pub const MerklePath = struct {
 
         var level: usize = 0;
         while (level < tree_height) : (level += 1) {
-            const count = try primitives.varint.VarInt.parse(data[cursor.* ..]);
+            const count = try primitives.varint.VarInt.parse(data[cursor.*..]);
             cursor.* += count.len;
             const leaf_count = std.math.cast(usize, count.value) orelse return error.Overflow;
             var leaves = try allocator.alloc(PathElement, leaf_count);
@@ -45,7 +45,7 @@ pub const MerklePath = struct {
 
             var leaf_index: usize = 0;
             while (leaf_index < leaf_count) : (leaf_index += 1) {
-                const offset_var = try primitives.varint.VarInt.parse(data[cursor.* ..]);
+                const offset_var = try primitives.varint.VarInt.parse(data[cursor.*..]);
                 cursor.* += offset_var.len;
                 const offset = offset_var.value;
                 if (data.len < cursor.* + 1) return error.EndOfStream;

@@ -144,8 +144,7 @@ test "output parse returns output and consumed length" {
     const allocator = std.testing.allocator;
     const raw = [_]u8{
         0x2a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x02, 0x51, 0x51,
-        0xff,
+        0x02, 0x51, 0x51, 0xff,
     };
 
     var parsed = try Output.parse(allocator, &raw);

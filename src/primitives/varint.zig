@@ -62,7 +62,7 @@ pub const VarInt = struct {
 };
 
 test "varint parses compact values" {
-    const parsed = try VarInt.parse(&[_]u8{0xfd, 0x34, 0x12});
+    const parsed = try VarInt.parse(&[_]u8{ 0xfd, 0x34, 0x12 });
     try std.testing.expectEqual(@as(u64, 0x1234), parsed.value);
     try std.testing.expectEqual(@as(usize, 3), parsed.len);
 }
